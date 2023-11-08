@@ -4,6 +4,10 @@ Prometheus exporter for Tesla API metrics
 Example Grafana dashboard [grafana_dash.json]
 ![Example Grafana dashboard](img/dash.png)
 
+# Tesla API auth
+
+See https://github.com/adriankumpf/tesla_auth for instructions on how to generate access and refresh tokens
+
 # Build & run
 
 ## Local npm
