@@ -1,4 +1,4 @@
-FROM node:18-slim AS BUILD_IMAGE
+FROM node:16-slim AS BUILD_IMAGE
 
 WORKDIR /usr/src/app
 
@@ -7,7 +7,7 @@ RUN npm ci --omit=dev
 
 COPY src/ .
 
-FROM node:18-slim AS build
+FROM node:16-slim AS build
 
 RUN mkdir -p /config
 
@@ -19,6 +19,6 @@ COPY --from=BUILD_IMAGE /usr/src/app/index.js ./index.mjs
 COPY --from=BUILD_IMAGE /usr/src/app/*.mjs ./
 COPY --from=BUILD_IMAGE /usr/src/app/node_modules ./node_modules
 
-ENV	CONFIG_PATH="${CONFIG_PATH}"
+ENV CONFIG_PATH="${CONFIG_PATH}"
 
 ENTRYPOINT  [ "node", "index.mjs" ]

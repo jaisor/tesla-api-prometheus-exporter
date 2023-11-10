@@ -1,8 +1,12 @@
 # tesla-api-prometheus-exporter
 Prometheus exporter for Tesla API metrics
 
-Example Grafana dashboard [grafana_dash.json]
+Dashboard snapshot https://snapshots.raintank.io/dashboard/snapshot/V8ReJsr79g4LfgzLlWVphFmZDIKP2Wp1
 ![Example Grafana dashboard](img/dash.png)
+
+Grafana JSON exported in [grafana_dash.json](grafana_dash.json)
+
+GitHub repo: https://github.com/jaisor/tesla-api-prometheus-exporter
 
 # Tesla API auth
 
