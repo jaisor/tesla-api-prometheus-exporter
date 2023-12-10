@@ -46,7 +46,7 @@ docker build -t tesla-api-prometheus-exporter:latest .
 
 ```
 docker run -dit --restart unless-stopped --name tesla-api-prometheus-exporter \
-  -v .config:/config \
-  -e CONFIG_PATH=/config -p 9004:8080 \
+  -v .config:/config -p 9004:8080 \
+  -e CONFIG_PATH=/config -e LOG_LEVEL=info \
   tesla-api-prometheus-exporter:latest
 ```
