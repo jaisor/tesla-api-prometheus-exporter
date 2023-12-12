@@ -5,6 +5,23 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Nodemon Launch Server",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "nodemon",
+      "runtimeArgs": [
+          "--inspect=5858"
+      ],
+      "program": "${workspaceFolder}\\src\\index.js",
+      "restart": true,
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "LOG_LEVEL": "info"
+      }
+    },
+    {
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
