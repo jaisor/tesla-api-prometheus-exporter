@@ -18,7 +18,8 @@
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "env": {
-        "LOG_LEVEL": "info"
+        "LOG_LEVEL": "debug",
+        "CONFIG_PATH": ".config"
       }
     },
     {
@@ -28,6 +29,10 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
+      "env": {
+        "LOG_LEVEL": "debug",
+        "CONFIG_PATH": ".config"
+      },
       "program": "${workspaceFolder}/src/index.js"
     }
   ]

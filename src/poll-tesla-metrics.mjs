@@ -1,6 +1,22 @@
 import tjs from 'teslajs'
 import logger from 'winston'
 
+function getEnergyHistory(apiTokens, siteId) {
+
+  tjs
+  var req = {
+    method: "GET",
+    url: tjs.portalBaseURI + "/api/1/energy_sites/" + siteId + "/history?kind=energy&period=day",
+    headers: {
+      Authorization: "Bearer " + apiTokens,
+      "Content-Type": "application/json; charset=utf-8"
+    }
+  }
+
+  logger.debug(`Request: ${JSON.stringify(req)}`)
+
+}
+
 async function poll(apiTokens) {
   var products = await tjs.productsAsync({ authToken: apiTokens.access_token })
   logger.info(`Found ${products.length} products`)
@@ -28,6 +44,8 @@ async function poll(apiTokens) {
         product.metrics[m] = Number(v)
       }
     }
+
+    getEnergyHistory(apiTokens.access_token, p.energy_site_id)
 
     response.push(product)
   }
