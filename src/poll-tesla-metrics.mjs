@@ -1,12 +1,22 @@
 import tjs from 'teslajs'
 import logger from 'winston'
+import request from 'request'
+
+request.defaults({
+  headers: {
+      "x-tesla-user-agent": "TeslaApp/3.4.4-350/fad4a582e/android/8.1.0",
+      "user-agent": "Mozilla/5.0 (Linux; Android 8.1.0; Pixel XL Build/OPM4.171019.021.D1; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/68.0.3440.91 Mobile Safari/537.36"
+  },
+  json: true,
+  gzip: true,
+  body: {}
+})
 
 function getEnergyHistory(apiTokens, siteId) {
 
-  tjs
   var req = {
     method: "GET",
-    url: tjs.portalBaseURI + "/api/1/energy_sites/" + siteId + "/history?kind=energy&period=day",
+    url: (process.env.TESLAJS_SERVER || tjs.portal) + "/api/1/energy_sites/" + siteId + "/history?kind=energy&period=day",
     headers: {
       Authorization: "Bearer " + apiTokens,
       "Content-Type": "application/json; charset=utf-8"
@@ -15,6 +25,26 @@ function getEnergyHistory(apiTokens, siteId) {
 
   logger.debug(`Request: ${JSON.stringify(req)}`)
 
+  request(req, function(error, response, body) {
+    if (error) {
+      logger.error(`Error retrieving energy history`, error)
+      return false
+    }
+
+    if (response.statusCode != 200) {
+      logger.error(`Energy history response code ${response.statusCode}`)
+      return false
+    }
+
+    //logger.debug(`Energy history: ${JSON.stringify(body)}`)
+
+    try {
+      return body
+    } catch (e) {
+      logger.error(`Error parsing solarStatus response`, e)
+      return false
+    }
+  })
 }
 
 async function poll(apiTokens) {
@@ -45,8 +75,11 @@ async function poll(apiTokens) {
       }
     }
 
-    getEnergyHistory(apiTokens.access_token, p.energy_site_id)
+    //let energyHistory = getEnergyHistory(apiTokens.access_token, p.energy_site_id)
+    //logger.debug(JSON.stringify(energyHistory))
 
+    //product.metrics = { ...metrics, ...energyHistory.time_series?.pop()}
+    
     response.push(product)
   }
 
