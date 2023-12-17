@@ -1,5 +1,48 @@
 import tjs from 'teslajs'
 import logger from 'winston'
+import request from 'request'
+
+request.defaults({
+  headers: {
+      "x-tesla-user-agent": "TeslaApp/3.4.4-350/fad4a582e/android/8.1.0",
+      "user-agent": "Mozilla/5.0 (Linux; Android 8.1.0; Pixel XL Build/OPM4.171019.021.D1; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/68.0.3440.91 Mobile Safari/537.36"
+  },
+  json: true,
+  gzip: true,
+  body: {}
+})
+
+function getEnergyHistory(apiTokens, siteId) {
+
+  var req = {
+    method: "GET",
+    url: (process.env.TESLAJS_SERVER || tjs.portal) + "/api/1/energy_sites/" + siteId + "/history?kind=energy&period=day",
+    headers: {
+      Authorization: "Bearer " + apiTokens,
+      "Content-Type": "application/json; charset=utf-8"
+    }
+  }
+
+  //logger.debug(`Request: ${JSON.stringify(req)}`)
+
+  return new Promise((resolve, reject) => {
+    request(req, (error, response, body) => {
+      if (error) {
+        reject(error)
+      }
+  
+      if (response.statusCode != 200) {
+        reject(new Error(`Energy history response code ${response.statusCode}`))
+      }
+  
+      try {
+        resolve(JSON.parse(body))
+      } catch (e) {
+        reject(e)
+      }
+    })
+  })
+}
 
 async function poll(apiTokens) {
   var products = await tjs.productsAsync({ authToken: apiTokens.access_token })
@@ -29,6 +72,16 @@ async function poll(apiTokens) {
       }
     }
 
+    await getEnergyHistory(apiTokens.access_token, p.energy_site_id).then(response => {
+      if (Array.isArray(response.response?.time_series) && response.response?.time_series?.length >= 2) {
+        //logger.debug(JSON.stringify(response))
+        let today = response.response?.time_series?.pop()
+        product.metrics = { ...product.metrics, ...today }
+      }
+    }).catch(err => {
+      logger.error(`Failed to get energy history for site ${p.energy_site_id}`, err)
+    })
+    
     response.push(product)
   }
 
