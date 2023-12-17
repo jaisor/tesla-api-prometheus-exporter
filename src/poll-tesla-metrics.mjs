@@ -23,27 +23,24 @@ function getEnergyHistory(apiTokens, siteId) {
     }
   }
 
-  logger.debug(`Request: ${JSON.stringify(req)}`)
+  //logger.debug(`Request: ${JSON.stringify(req)}`)
 
-  request(req, function(error, response, body) {
-    if (error) {
-      logger.error(`Error retrieving energy history`, error)
-      return false
-    }
-
-    if (response.statusCode != 200) {
-      logger.error(`Energy history response code ${response.statusCode}`)
-      return false
-    }
-
-    //logger.debug(`Energy history: ${JSON.stringify(body)}`)
-
-    try {
-      return body
-    } catch (e) {
-      logger.error(`Error parsing solarStatus response`, e)
-      return false
-    }
+  return new Promise((resolve, reject) => {
+    request(req, (error, response, body) => {
+      if (error) {
+        reject(error)
+      }
+  
+      if (response.statusCode != 200) {
+        reject(new Error(`Energy history response code ${response.statusCode}`))
+      }
+  
+      try {
+        resolve(JSON.parse(body))
+      } catch (e) {
+        reject(e)
+      }
+    })
   })
 }
 
@@ -75,10 +72,15 @@ async function poll(apiTokens) {
       }
     }
 
-    //let energyHistory = getEnergyHistory(apiTokens.access_token, p.energy_site_id)
-    //logger.debug(JSON.stringify(energyHistory))
-
-    //product.metrics = { ...metrics, ...energyHistory.time_series?.pop()}
+    await getEnergyHistory(apiTokens.access_token, p.energy_site_id).then(response => {
+      if (Array.isArray(response.response?.time_series) && response.response?.time_series?.length >= 2) {
+        //logger.debug(JSON.stringify(response))
+        let today = response.response?.time_series?.pop()
+        product.metrics = { ...product.metrics, ...today }
+      }
+    }).catch(err => {
+      logger.error(`Failed to get energy history for site ${p.energy_site_id}`, err)
+    })
     
     response.push(product)
   }
